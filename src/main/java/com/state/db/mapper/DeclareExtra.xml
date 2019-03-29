@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.DeclareExtraDaoI">
+	<resultMap id="resultMap" type="DeclareExtraPo">
+    <id property="id" column="ID_" jdbcType="VARCHAR" />
+    <result property="sheetUid" column="SHEET_UID_" jdbcType="VARCHAR" />
+    <result property="startTime" column="START_TIME_" jdbcType="VARCHAR" />
+    <result property="endTime" column="END_TIME_" jdbcType="VARCHAR" />
+    <result property="power" column="POWER_" jdbcType="FLOAT" />
+    <result property="price" column="PRICE_" jdbcType="FLOAT" />
+  </resultMap>
+  <select id="selectListBySheetUid" parameterType="String" resultMap="resultMap">
+   	select * from <include refid='public.model' /> CBPM_SHEET_EXTRA where SHEET_UID_ = #{sheetUid, jdbcType=VARCHAR} 
+   	<if test="price!=null and price!=0 ">
+			 and PRICE_=#{price!=null, jdbcType=FLOAT}
+	</if>
+   	order by START_TIME_,END_TIME_ 
+  </select>
+  <insert id="insert" parameterType="DeclareExtraPo">
+		INSERT INTO <include refid='public.model' /> CBPM_SHEET_EXTRA(
+		ID_,
+		SHEET_UID_,
+		START_TIME_,
+		END_TIME_,
+		POWER_,
+		PRICE_) VALUES(
+		#{id ,jdbcType=VARCHAR},
+		#{sheetUid ,jdbcType=VARCHAR},
+		#{startTime ,jdbcType=VARCHAR},
+		#{endTime ,jdbcType=VARCHAR},
+		#{power ,jdbcType=FLOAT},
+		#{price, jdbcType=FLOAT}
+		)
+	</insert>
+	
+	<delete id="delete" parameterType="String">
+    delete from <include refid='public.model' /> CBPM_SHEET_EXTRA where SHEET_UID_ = #{sheetUid, jdbcType=VARCHAR}
+  </delete>
+  <select id="selectListBySheetUids" parameterType="String" resultMap="resultMap">
+   	select START_TIME_,END_TIME_,sum(POWER_) as POWER_,sum(POWER_*PRICE_) as PRICE_ from <include refid='public.model' /> CBPM_SHEET_EXTRA where SHEET_UID_ in 
+   	<foreach item="item" index="index" collection="uids" 
+             open="(" separator="," close=")">
+            #{item}
+    </foreach>
+   group by START_TIME_,END_TIME_
+  </select>
+</mapper>

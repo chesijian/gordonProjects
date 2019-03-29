@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.org.OrgUserRoleDaoI">
+
+	<insert id="insert" parameterType="OrgUserRolePo">
+		INSERT INTO <include refid='public.model' /> ORG_USER_ROLE(
+		ROLE_UID_,
+		USER_UID_,
+		ROLE_ID_,
+		USER_ID_,
+		ADD_NAME_,
+		ADD_NAME_CN_,
+		DOC_CREATED_
+		) VALUES(
+		#{roleUid ,jdbcType=VARCHAR},
+		#{userUid,jdbcType=VARCHAR},
+		#{roleId ,jdbcType=VARCHAR},
+		#{userId,jdbcType=VARCHAR},
+		#{addName, jdbcType=VARCHAR},
+		#{addNameCn, jdbcType=VARCHAR},
+		#{docCreated, jdbcType=TIMESTAMP}
+		)
+	</insert>
+	
+<delete id="deleteByRole" parameterType="string">
+    delete from <include refid='public.model' /> ORG_USER_ROLE where ROLE_UID_ in (#{roleUids, jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteByUser" parameterType="string">
+    delete from <include refid='public.model' /> ORG_USER_ROLE where USER_UID_ in (#{userUids, jdbcType=VARCHAR})
+  </delete>
+</mapper>

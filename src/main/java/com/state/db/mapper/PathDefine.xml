@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.IPathDefineDao">
+	<sql id="pathDefineInfo">
+		id,mpath,morder,start_area as startArea,end_area as endArea,mnum,
+		pri_num_ as priNum,IAREA_TARIFF_ as iareaTariff, 
+		JAREA_TARIFF_ as jareaTariff,JPRO_TARIFF_ as jproTariff,
+		IPRO_TARIFF_ as iproTariff, sort_ AS sort,
+		START_DATE_ as startDate,END_DATE_ as endDate
+	</sql>
+	
+	<update id="updatePathDefine" parameterType="PathDefinePo">
+		update <include refid='public.model' /> CBPM_PATH_DEFINE
+		<set> 
+			id=#{id},
+			mpath=#{mpath},
+			morder=#{morder},
+			start_area=#{startArea},
+			end_area=#{endArea},
+			mnum=#{mnum},
+			pri_num_=#{priNum},
+			IAREA_TARIFF_=#{iareaTariff},
+			JAREA_TARIFF_=#{jareaTariff},
+			JPRO_TARIFF_=#{jproTariff},
+			IPRO_TARIFF_=#{iproTariff},
+			START_DATE_=#{startDate},
+			END_DATE_=#{endDate},
+			sort_=#{sort},
+		</set> 
+		where id=#{id}
+	</update>
+	
+	<delete id="deletePathDefine" parameterType="String">
+		delete from <include refid='public.model' /> CBPM_PATH_DEFINE where id=#{pathId}
+	</delete>
+	
+	<insert id ="insertPathDefine" parameterType="PathDefinePo">
+		insert into <include refid='public.model' /> CBPM_PATH_DEFINE
+			(id,mpath,morder,start_area,end_area,mnum,pri_num_,IAREA_TARIFF_, 
+		JAREA_TARIFF_,JPRO_TARIFF_,
+		IPRO_TARIFF_, sort_,
+		START_DATE_,END_DATE_)
+		values
+			(#{id},#{mpath},#{morder},#{startArea},#{endArea},#{mnum},#{priNum},#{iareaTariff},
+			#{jareaTariff},#{jproTariff},#{iproTariff},#{sort},#{startDate},#{endDate})
+	</insert>
+	
+	<select id="selectPathALL" resultType="PathDefinePo">
+		select <include refid="pathDefineInfo" /> from <include refid='public.model' /> 
+		CBPM_PATH_DEFINE where 
+		((${time}&gt;=start_date_ and ${time}&lt; end_date_ and end_date_ is not null) or(${time}&gt;=start_date_ and end_date_ is Null))
+		or (start_Date_ = end_date_ and start_Date_ = ${time}) order by MPATH
+	</select>
+	
+	<select id="countPathByName"  parameterType="String" resultType="int">
+		select count(1) from <include refid='public.model' /> CBPM_PATH_DEFINE where  id=#{id}
+	</select>
+	
+	<select id="getPathDefineById" resultType="PathDefinePo" parameterType="String">
+		select <include refid="pathDefineInfo" /> from <include refid='public.model' /> CBPM_PATH_DEFINE where  id=#{id}
+	</select>
+	
+	<select id="getPathNum" resultType="java.lang.Integer" >
+		select count(id) from <include refid='public.model' /> CBPM_PATH_DEFINE
+	</select>
+	
+	<resultMap id="pathDFPoAndDataList" type="PathDefinePo">  
+        <id column="ID" property="id" jdbcType="VARCHAR"/>  
+        <result column="MPATH" property="mpath" jdbcType="VARCHAR"/>  
+        <result column="MORDER" property="morder" jdbcType="INTEGER"/>  
+        <result column="START_AREA" property="startArea" jdbcType="VARCHAR"/>
+        <result column="END_AREA" property="endArea" jdbcType="VARCHAR"/>
+        <result column="MNUM" property="mnum" jdbcType="INTEGER" /> 
+        <result column="PRI_NUM_" property="priNum" jdbcType="INTEGER" /> 
+        <result column="IAREA_TARIFF_" property="iareaTariff" jdbcType="FLOAT" />
+        <result column="JAREA_TARIFF_" property="jareaTariff" jdbcType="FLOAT" />  
+        <result column="JPRO_TARIFF_" property="jproTariff" jdbcType="FLOAT" />  
+        <result column="IPRO_TARIFF_" property="iproTariff" jdbcType="FLOAT" />  
+        <result column="SESSION_" property="session" jdbcType="INTEGER" />  
+        <result column="SORT_" property="sort" jdbcType="INTEGER" /> 
+        <collection property="corridorPaths" javaType="java.util.List" ofType="com.state.po.CorridorPathPo">  
+            <id column="ID_" property="id" jdbcType="VARCHAR" />  
+            <result column="PATHPRI" property="pathPri" jdbcType="INTEGER" />  
+            <result column="MDIRECTION" property="mdirection" jdbcType="VARCHAR" />
+            <result column="CORHR1" property="corhr1" jdbcType="VARCHAR" />
+            <result column="CORHR2" property="corhr2" jdbcType="VARCHAR" />
+             <result column="CORHR3" property="corhr3" jdbcType="INTEGER" />  
+            <result column="CORHR4" property="corhr4" jdbcType="VARCHAR" />
+            <result column="CORHR5" property="corhr5" jdbcType="VARCHAR" />
+            <result column="CORHR6" property="corhr6" jdbcType="VARCHAR" />
+             <result column="CORHR7" property="corhr7" jdbcType="INTEGER" />  
+            <result column="CORHR8" property="corhr8" jdbcType="VARCHAR" />
+            <result column="CORHR9" property="corhr9" jdbcType="VARCHAR" />
+            <result column="CORHR10" property="corhr10" jdbcType="VARCHAR" />
+            <result column="SORT_" property="sort" jdbcType="VARCHAR" />
+            <result column="PRICE_RATIOA" property="priceRatioA" jdbcType="VARCHAR" />
+            <result column="PRICE_RATIOB" property="priceRatioB" jdbcType="VARCHAR" />
+            <result column="TRANS_LOSS" property="transLoss" jdbcType="VARCHAR" />
+            <result column="DATA_" property="data" jdbcType="VARCHAR" />
+        </collection>  
+    </resultMap>  
+	<sql id="sql_selectPathDefineAndData">
+    select 
+    	a.ID,
+    	a.MPATH,
+    	a.MORDER,
+    	a.START_AREA,
+    	a.END_AREA,
+    	a.MNUM,
+    	a.PRI_NUM_,
+    	a.IAREA_TARIFF_,
+    	a.JAREA_TARIFF_,
+    	a.JPRO_TARIFF_,
+    	a.IPRO_TARIFF_,
+    	b.*
+		from <include refid='public.model' /> CBPM_PATH_DEFINE a 
+			LEFT JOIN <include refid='public.model' /> CBPM_CORRIDOR_PATH b
+			 ON a.ID = b.PATH_UID_   
+			where  ((${time}&gt;=a.start_date_ and ${time}&lt; a.end_date_ and a.end_date_ is not null) or(${time}&gt;=a.start_date_ and a.end_date_ is Null))
+    </sql>
+    <select id="getPathListAndCorridor"  resultMap="pathDFPoAndDataList">
+		 <include refid='sql_selectPathDefineAndData' />
+	</select>
+	
+	<select id="selectPathByName" resultType="PathDefinePo">
+		select <include refid="pathDefineInfo" /> from <include refid='public.model' /> 
+		CBPM_PATH_DEFINE where
+		((${time}&gt;=start_date_ and ${time}&lt; end_date_ and end_date_ is not null) or(${time}&gt;=start_date_ and end_date_ is Null))
+		
+		<if test="pathName!=null and pathName!='' ">
+		  and MPATH=#{pathName}
+		</if>
+		
+	</select>
+</mapper>

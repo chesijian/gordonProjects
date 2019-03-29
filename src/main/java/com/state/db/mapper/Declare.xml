@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.IDeclareDao">
+	<sql id="daclareInfo">
+		id,sheet_name as sheetName,descr,mdate,area,drloe,dtime,mname,drloe,startdate,enddate,clearstate,status
+	</sql>
+	
+	<delete id="deleteDeclare" parameterType="Long">
+		delete from <include refid='public.model' /> CBPM_SHEET_DECL where id=#{id}
+	</delete>
+	
+	<insert id="insertDeclare" parameterType="DeclarePo" >
+		<selectKey resultType="long" keyProperty="id" order="AFTER" >
+	    SELECT @@IDENTITY
+	  </selectKey>
+
+		insert into <include refid='public.model' />CBPM_SHEET_DECL
+		 (sheet_name,descr,mdate,area,dtime,mname,drloe,startdate,enddate,rname,clearstate,status)
+		 values
+		 (#{sheetName},#{descr},#{mdate},#{area},#{dtime},#{mname},#{drloe},#{startDate},#{endDate},#{rname},#{clearstate},#{status})
+		 
+	</insert>
+
+	
+	<update id="updateDeclare" parameterType="DeclarePo">
+		update <include refid='public.model' />CBPM_SHEET_DECL
+		<set> 
+			sheet_name=#{sheetName},
+			descr=#{descr}
+		</set> 
+		where id=#{id}
+	</update>
+	
+	<update id="updateDeclareStatus" parameterType="DeclarePo">
+		update <include refid='public.model' />CBPM_SHEET_DECL
+		<set> 
+			status=#{status,jdbcType=INTEGER},
+			SUBMIT_USER_ID_=#{submitId},
+			SUBMIT_DATE_=#{submitTime}
+		</set> 
+		where id in 
+		<foreach item="item" index="index" collection="ids" 
+                         open="(" separator="," close=")">
+                        #{item}
+                </foreach>
+	</update>
+	
+	<select id="countDeclareById" parameterType="Long" resultType="int">
+		select count(1) from <include refid='public.model' /> CBPM_SHEET_DECL  where id=#{id}
+	</select>
+	<select id="getSheetIdByName" parameterType="String" resultType="String">
+		select id from <include refid='public.model' /> CBPM_SHEET_DECL  where sheet_name=#{name}
+	</select>
+	<select id="getDeclares" parameterType="Long" resultType="DeclarePo">
+		select <include refid="daclareInfo" /> from <include refid='public.model' /> CBPM_SHEET_DECL where ID=#{id}
+	</select>
+	
+	<select id="getLastDeclare" parameterType="String" resultType="DeclarePo">
+		select top 1 <include refid="daclareInfo" /> from <include refid='public.model' /> CBPM_SHEET_DECL where MDATE=#{mdate}
+		<if test="area!=null and area!='' ">
+			 and AREA=#{area}
+		 </if>
+		 
+		 order by ID desc
+	</select>
+	
+	<select id="getLastSn"  resultType="String">
+		select top 1 sheet_name as sn from <include refid='public.model' /> CBPM_SHEET_DECL where sheet_name  like  CONCAT('%',CONCAT(#{date},'%'))  and DRLOE=#{drloe}   order by sheet_name desc
+	</select>
+	
+	<select id="getIsExtisSn"  resultType="int">
+		select count(1) as total  from <include refid='public.model' /> CBPM_SHEET_DECL where sheet_name  like CONCAT('%',#{sn}) and DRLOE=#{drloe}
+	</select>
+	
+	<resultMap id="queryForList" type="com.state.po.DeclarePo">  
+        <id column="ID" property="id" jdbcType="BIGINT"/>  
+        <result column="SHEET_NAME" property="sheetName" jdbcType="VARCHAR"/>  
+        <result column="AREA" property="area" jdbcType="VARCHAR"/>  
+        <result column="DRLOE" property="drloe" jdbcType="VARCHAR"/>
+        <result column="STARTDATE" property="startDate" jdbcType="VARCHAR" /> 
+        <result column="ENDDATE" property="endDate" jdbcType="VARCHAR" /> 
+        <result column="RNAME" property="rname" jdbcType="VARCHAR" />
+        <result column="DESCR" property="descr" jdbcType="VARCHAR" />  
+        <result column="STATUS" property="status" jdbcType="INTEGER" /> 
+        <result column="CLEARSTATE" property="clearstate" jdbcType="VARCHAR" /> 
+        <result column="MDATE" property="mdate" jdbcType="VARCHAR" />  
+        <collection property="declareDatas" javaType="java.util.List" ofType="com.state.po.DeclareDataPo">  
+            <id column="ID" property="id" jdbcType="BIGINT" />  
+            <result column="SUM_Q" property="sumQ" jdbcType="VARCHAR" />  
+            <result column="SUM_PRICE" property="sumPrice" jdbcType="VARCHAR" /> 
+            <result column="DTYPE" property="dtype" jdbcType="VARCHAR" />  
+            
+        </collection>  
+    </resultMap>  
+	<select id="queryForList"  resultMap="queryForList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          a.DESCR,
+          a.CLEARSTATE,
+          a.MDATE,
+          a.STATUS,
+          b.SUM_Q,
+          b.SUM_PRICE,
+          b.DTYPE  
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+          LEFT JOIN <include refid='public.model' /> 
+          CBPM_DECL b
+        ON  
+          a.ID = b.ID  
+          <!-- 
+         
+        WHERE b.SUM_Q IS NOT NULL AND b.SUM_PRICE IS NOT NULL and a.MDATE=#{time} 
+         -->
+         where a.MDATE=#{time}
+        <if test="area!=null and area!='' ">
+			 and a.AREA=#{area}
+		 </if>
+		 <if test="status!=null ">
+			and a.STATUS=#{status, jdbcType=INTEGER} 
+		 </if>
+		 order by a.SHEET_NAME
+	</select>
+	<resultMap id="queryForListByMdate" type="com.state.po.DeclarePo">  
+        <id column="ID" property="id" jdbcType="BIGINT"/>  
+        <result column="SHEET_NAME" property="sheetName" jdbcType="VARCHAR"/>  
+        <result column="AREA" property="area" jdbcType="VARCHAR"/>  
+        <result column="DRLOE" property="drloe" jdbcType="VARCHAR"/>
+        <result column="STARTDATE" property="startDate" jdbcType="VARCHAR" /> 
+        <result column="ENDDATE" property="endDate" jdbcType="VARCHAR" /> 
+        <result column="RNAME" property="rname" jdbcType="VARCHAR" />
+        <result column="DESCR" property="descr" jdbcType="VARCHAR" />  
+        <collection property="declareDatas" javaType="java.util.List" ofType="com.state.po.DeclareDataPo">  
+            <id column="ID" property="id" jdbcType="BIGINT" />  
+            <result column="SUM_Q" property="sumQ" jdbcType="VARCHAR" />  
+            <result column="SUM_PRICE" property="sumPrice" jdbcType="VARCHAR" /> 
+            <result column="DTYPE" property="dtype" jdbcType="VARCHAR" />  
+            
+        </collection>  
+    </resultMap>  
+	<select id="queryForListByMdate"  resultMap="queryForList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          a.DESCR,
+          b.SUM_Q,
+          b.SUM_PRICE,
+          b.DTYPE  
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+        LEFT JOIN  <include refid='public.model' />
+          CBPM_DECL b
+        ON  
+          a.ID = b.ID   
+        WHERE b.SUM_Q IS NOT NULL AND b.SUM_PRICE IS NOT NULL and MDATE=#{time}
+       <!--  WHERE b.SUM_Q IS NOT NULL AND b.SUM_PRICE IS NOT NULL and #{time}&gt;=startdate and #{time}&lt;=enddate -->
+        <if test="area!=null and area!='' ">
+			 and a.AREA=#{area}
+		 </if>
+	</select>
+	<select id="selectDeclareByParam" resultType="DeclarePo">
+		select <include refid="daclareInfo" />
+			from <include refid='public.model' /> CBPM_SHEET_DECL 
+			where area=#{area} and #{mdate}&gt;=startdate and #{mdate}&lt;=enddate
+		 <if test="mname!=null and mname!='' ">
+			 and mname=#{mname}
+		 </if>
+		  
+	</select>
+
+	<select id="getSheetDeclNum" resultType="String">
+		select count(s1.DRLOE) from <include refid='public.model' /> CBPM_SHEET_DECL s1 where s1.DRLOE='buy' and s1.status = 1 and s1.mdate=#{time} union all select count(s2.DRLOE) from <include refid='public.model' /> CBPM_SHEET_DECL s2 where s2.DRLOE='sale' and s2.status = 1 and s2.mdate=#{time}
+	</select>
+	
+	<select id="getSheetDeclAreaNum"  resultType="String">
+		select count(distinct area) from <include refid='public.model' /> CBPM_SHEET_DECL s1 where s1.DRLOE='buy' and s1.status = 1 and s1.mdate=#{time} union all select count(distinct area) from <include refid='public.model' /> CBPM_SHEET_DECL s2 where s2.DRLOE='sale' and s2.status = 1 and s2.mdate=#{time}
+	</select>
+	
+	<resultMap id="areaListByMdate" type="com.state.po.DeclarePo">  
+        <result column="AREA" property="area" jdbcType="VARCHAR"/>  
+        <result column="DRLOE" property="drloe" jdbcType="VARCHAR"/>
+    </resultMap>  
+	
+	<select id = "getAreaListByMdate"   resultMap="areaListByMdate">
+		select distinct AREA,DRLOE from <include refid='public.model' /> CBPM_SHEET_DECL s1 where s1.mdate=#{time}  and s1.status = 1 
+	</select>
+	
+	<resultMap id="declarePoList" type="com.state.po.DeclarePo">  
+        <id column="ID" property="id" jdbcType="BIGINT"/>  
+        <result column="SHEET_NAME" property="sheetName" jdbcType="VARCHAR"/>  
+        <result column="AREA" property="area" jdbcType="VARCHAR"/>  
+        <result column="DRLOE" property="drloe" jdbcType="VARCHAR"/>
+        <result column="STARTDATE" property="startDate" jdbcType="VARCHAR" /> 
+        <result column="ENDDATE" property="endDate" jdbcType="VARCHAR" /> 
+        <result column="RNAME" property="rname" jdbcType="VARCHAR" />
+        <result column="DESCR" property="descr" jdbcType="VARCHAR" />  
+        <collection property="declareExtraEns" javaType="java.util.List" ofType="com.state.po.DeclareExtraEnPo">  
+            <id column="ID_" property="id" jdbcType="VARCHAR" />  
+            <result column="START_TIME_" property="startTime" jdbcType="VARCHAR" />  
+            <result column="END_TIME_" property="endTime" jdbcType="VARCHAR" /> 
+            <result column="POWER_" property="power" jdbcType="VARCHAR" />  
+            <result column="PRICE_" property="price" jdbcType="VARCHAR" />
+        </collection>  
+    </resultMap>  
+	<select id="getListAndDataByMdate"  resultMap="declarePoList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          b.START_TIME_,
+          b.END_TIME_,
+          b.POWER_,
+          b.PRICE_ 
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+        LEFT JOIN  
+          <include refid='public.model' /> CBPM_SHEET_DATA b
+        
+        ON  
+          a.ID = b.SHEET_UID_   
+        WHERE a.MDATE=#{time} 
+        <if test="status!=null ">
+			and a.STATUS=#{status, jdbcType=INTEGER} 
+		 </if>
+        <if test="area!=null and area!='' ">
+			 and a.AREA=#{area}
+		 </if>
+	</select>
+	
+	
+	<select id="getListAndDataByMdateInterval"  resultMap="declarePoList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          b.START_TIME_,
+          b.END_TIME_,
+          b.POWER_,
+          b.PRICE_ 
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+        LEFT JOIN  
+          <include refid='public.model' />CBPM_SHEET_DATA b
+        
+        ON  
+          a.ID = b.SHEET_UID_   
+        where a.MDATE between #{startTime} and #{endTime}
+        <if test="status!=null ">
+			 and a.STATUS=#{status, jdbcType=INTEGER} 
+		 </if>
+		 order by a.SHEET_NAME
+	</select>
+	
+	<resultMap id="declarePoExtraList" type="com.state.po.DeclarePo">  
+        <id column="ID" property="id" jdbcType="BIGINT"/>  
+        <result column="SHEET_NAME" property="sheetName" jdbcType="VARCHAR"/>  
+        <result column="AREA" property="area" jdbcType="VARCHAR"/>  
+        <result column="DRLOE" property="drloe" jdbcType="VARCHAR"/>
+        <result column="STARTDATE" property="startDate" jdbcType="VARCHAR" /> 
+        <result column="ENDDATE" property="endDate" jdbcType="VARCHAR" /> 
+        <result column="RNAME" property="rname" jdbcType="VARCHAR" />
+        <result column="DESCR" property="descr" jdbcType="VARCHAR" />  
+        <collection property="declareExtraEns" javaType="java.util.List" ofType="com.state.po.DeclareExtraEnPo">  
+            <id column="ID_" property="id" jdbcType="VARCHAR" />  
+            <result column="START_TIME_" property="startTime" jdbcType="VARCHAR" />  
+            <result column="END_TIME_" property="endTime" jdbcType="VARCHAR" /> 
+            <result column="POWER_" property="power" jdbcType="FLOAT" />  
+            <result column="PRICE_" property="price" jdbcType="FLOAT" />
+        </collection>  
+    </resultMap>  
+	<select id="getListAndExtraByMdate"  resultMap="declarePoExtraList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          b.START_TIME_,
+          b.END_TIME_,
+          b.POWER_,
+          b.PRICE_ 
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+        LEFT JOIN  <include refid='public.model' />
+          CBPM_SHEET_EXTRA b
+        ON  
+          a.ID = b.SHEET_UID_   
+        WHERE a.MDATE=#{time} and a.status = 1
+        <if test="area!=null and area!='' ">
+			 and a.AREA=#{area}
+		 </if>
+	</select>
+	
+	<insert id="addLog">
+	  insert into <include refid='public.model' /> CBPM_MODIFY_LOG (SHEET_ID,MDATE,USER_ID,TYPE) values(#{sheetId},#{mdate},#{userId},#{type});
+	</insert>
+	
+	<delete id="clearLogForDecl">
+	  delete from <include refid='public.model' /> CBPM_MODIFY_LOG where  SHEET_ID=#{sheetId} and TYPE=#{type}
+	   <if test="mdate!=null and mdate!='' ">
+			 and mdate=#{mdate}
+		 </if>
+	</delete>
+	
+	<insert id="addLogForResult">
+	  insert into <include refid='public.model' /> CBPM_MODIFY_LOG (USER_ID,MDATE,TYPE) values(#{userId},#{mdate},#{type});
+	</insert>
+	
+	<delete id="clearLogForResult">
+	  delete from <include refid='public.model' /> CBPM_MODIFY_LOG where USER_ID=#{userId} and MDATE=#{mdate} and TYPE=#{type};
+	</delete>
+	
+	<delete id="deleteLogBySheet">
+	  delete from <include refid='public.model' /> CBPM_MODIFY_LOG where SHEET_ID=#{sheetId};
+	</delete>
+	
+	<select id="getUserIdList" resultType="String">
+	  select USER_ID from <include refid='public.model' /> CBPM_MODIFY_LOG where SHEET_ID=#{sheetId}
+	
+	</select>
+	
+	<select id="getUserGraPhPoListBySheetUid" resultType="UserPo">
+	  select u.ID_ as id,u.USER_ID_ as userId,u.MNAME as mname,u.AREA as area,u.DTYPE as dtype,u.DROLE as drole,u.is_login islogin,u.auto_graph autoGraph from <include refid='public.model' /> CBPM_USER u where ID_ in (select distinct(USER_ID) from <include refid='public.model' /> CBPM_MODIFY_LOG where SHEET_ID=#{sheetId})
+	
+	</select>
+	
+	<select id="getUserGraPhPoListByMdateAndType" resultType="UserPo">
+	  select u.ID_ as id,u.USER_ID_ as userId,u.MNAME as mname,u.AREA as area,u.DTYPE as dtype,u.DROLE as drole,u.is_login islogin,u.auto_graph autoGraph from <include refid='public.model' /> CBPM_USER u where ID_ in (select distinct(USER_ID) from <include refid='public.model' /> CBPM_MODIFY_LOG where 1=1
+	   <if test="mdate!=null and mdate!='' ">
+			 and mdate=#{mdate}
+		 </if>
+		  <if test="type!=null and type!='' ">
+			 and type=#{type}
+		 </if>)
+	
+	</select>
+	
+	<select id="getAreaSheetCountByMdate" resultType="AreaPo">
+	select a.*,SORT_ as sort,(select count (*) from <include refid='public.model' /> CBPM_SHEET_DECL d where d.area = a.area 
+	  
+	 <if test="mdate!=null and mdate!='' ">
+			 and d.mdate=#{mdate}
+		 </if>
+		   ) as count from <include refid='public.model' /> CBPM_AREA a where dtype='省' order by region,sort_
+	
+	</select>
+	
+	<select id="getAreaSheetStatusByMdate" resultType="AreaPo">
+		select a.*,SORT_ as sort,d.status count,case when d.ID is null then 0 else 1 end isSheet from <include refid='public.model' /> CBPM_AREA a left join 
+		
+		(select * from <include refid='public.model' />CBPM_SHEET_DECL where 1=1 
+		<if test="mdate!=null and mdate!='' ">
+			and mdate=#{mdate}
+		</if>
+		) d 
+		on a.area = d.area where a.dtype='省' order by region,sort_
+	</select>
+	<select id="querySheetsByTime"  resultMap="queryForList">
+		SELECT  
+		  a.ID,
+          a.SHEET_NAME,
+          a.AREA,
+          a.DRLOE,
+          a.STARTDATE,
+          a.ENDDATE,
+          a.RNAME,
+          a.DESCR,
+          a.CLEARSTATE,
+          a.MDATE,
+          a.STATUS,
+          b.SUM_Q,
+          b.SUM_PRICE,
+          b.DTYPE  
+        from <include refid='public.model' />  
+          CBPM_SHEET_DECL a  
+          LEFT JOIN  <include refid='public.model' />
+          CBPM_DECL b
+        ON  
+          a.ID = b.ID  
+         where a.MDATE between #{startTime} and #{endTime}
+          <if test="status!=null ">
+			 and a.STATUS=#{status, jdbcType=INTEGER} 
+		 </if>
+			
+		 order by a.SHEET_NAME
+	</select>
+	
+	<select id="getDeclareIdByTimeAndArea" parameterType="String" resultType="Long">
+		select top 1 id from <include refid='public.model' /> CBPM_SHEET_DECL where MDATE=#{time} and AREA=#{area}
+	</select>
+	 
+</mapper>

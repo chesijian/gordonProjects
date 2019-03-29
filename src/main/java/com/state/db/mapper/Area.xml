@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.AreaDao">
+
+	<select id="getAllArea" resultType="AreaPo">
+		select area from <include refid='public.model' /> CBPM_AREA
+	</select>
+
+	<select id="getDcodeByArea" resultType="String">
+		select dcode from <include refid='public.model' /> CBPM_AREA where area=#{area}
+	</select>
+	<select id="getDroleByArea" resultType="String">
+		select drole from <include refid='public.model' /> CBPM_AREA where area=#{area}
+	</select>
+	<select id="getAreaInfo" resultType="AreaPo">
+		select * from <include refid='public.model' /> CBPM_AREA
+	</select>
+</mapper>

@@ -1,0 +1,139 @@
+@CHARSET "UTF-8";
+
+body,td{
+font-size:11pt;
+font-family:微软雅黑,宋体;
+}
+
+.table {
+/*border:1px solid #e8e8e8;
+border:1px solid #C3D0DD;*/
+border-collapse:collapse;
+
+border:1px solid #e8e8e8;
+
+width:100%;
+}
+
+.table td {
+/**/
+border-collapse:collapse;
+border:1px solid #e8e8e8;
+
+padding:4px;
+}
+
+.table td.td_text{
+	background:#F0F0F0;
+}
+
+._css_main_form{
+/*
+border:1px solid #eceff6 !important ;margin: 10px;background-color: white;
+	*/
+	
+	padding: 5px;
+}
+
+
+
+select:focus{
+	
+	height:25px;
+	line-height:18px;
+	border:1px solid #7eadd9;
+	
+	font-family:"微软雅黑","宋体";
+}
+select{
+	font-size:11pt;
+	height:25px;
+	line-height:18px;
+	border:1px solid #C3D0DD;
+	
+	font-family:"微软雅黑","宋体";
+}
+textarea:focus{
+	border:1px solid #7eadd9;
+	
+	font-family:"微软雅黑","宋体";
+	resize:none
+}
+textarea{
+	
+	border:1px solid #C3D0DD;
+	font-size:11pt;
+	font-family:"微软雅黑","宋体";
+	
+}
+
+.input{
+	/**/
+	width:150px;
+	height:23px;
+	font-size:11pt;
+	border:1px solid #C3D0DD;
+	font-family:"微软雅黑","宋体";
+	
+}
+input:focus{
+	/*
+	width:152px;
+	height:25px;
+	line-height:18px;
+	*/
+	border:1px solid #7eadd9;
+	
+	font-family:"微软雅黑","宋体";
+}
+.notValid{
+	border:1px solid red!important;
+}
+.valid_img{
+	width:16px;
+	height:16px;
+	background: url(../img/erinfo.gif) no-repeat;
+}
+
+.css_span_required{
+color: red;
+}
+
+.css_loading_content{ 
+background-color:white;
+width:193px; 
+height:35px; 
+position:absolute; 
+left:50%; 
+top:50%; 
+margin:-10px 0px 10px -86px; }
+
+.css_loading_mask{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        z-index:20000;
+        /*background-color:gray;background-color:#929395;*/
+        background-color:#FCFAFA;
+        opacity: 0.5;
+    }
+    .css_loading{
+        position:absolute;
+        left:45%;
+        top:40%;
+        padding:2px;
+        z-index:20001;
+        height:auto;
+ }
+.css_loading_indicator{
+        color:#444;
+        font:bold 20px tahoma,arial,helvetica;
+        padding:10px;
+        margin:0;
+        height:auto;
+    }
+    #loading-msg {
+        font: normal 18px arial,tahoma,sans-serif;
+    }

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.org.OrgRoleResourcesDaoI">
+
+	<resultMap id="orgRoleResourcesMap" type="OrgRoleResourcesPo">
+    <id property="id" column="ID_" jdbcType="VARCHAR" />
+    <result property="roleId" column="ROLE_ID_" jdbcType="VARCHAR" />
+    <result property="roleUid" column="ROLE_UID_" jdbcType="VARCHAR" />
+    <result property="resourceId" column="RESOURCE_ID_" jdbcType="VARCHAR" />
+    <result property="resourceUid" column="RESOURCE_UID_" jdbcType="VARCHAR" />
+    <result property="belongId" column="BELONG_ID_" jdbcType="VARCHAR" />
+    <result property="belongUid" column="BELONG_UID_" jdbcType="VARCHAR" />
+    <result property="type" column="TYPE_" jdbcType="VARCHAR" />
+    <result property="addName" column="ADD_NAME_" jdbcType="VARCHAR" />
+    <result property="addNameCn" column="ADD_NAME_CN_" jdbcType="VARCHAR" />
+    <result property="docCreated" column="DOC_CREATED_" jdbcType="TIMESTAMP" />
+    </resultMap>
+	
+	<insert id="insert" parameterType="OrgRoleResourcesPo">
+		INSERT INTO <include refid='public.model' /> ORG_ROLE_RESOURCES(
+		ID_,
+		ROLE_ID_,
+		ROLE_UID_,
+		RESOURCE_ID_,
+		RESOURCE_UID_,
+		BELONG_ID_,
+		BELONG_UID_,
+		TYPE_,
+		ADD_NAME_,
+		ADD_NAME_CN_,
+		DOC_CREATED_
+		) VALUES(
+		#{id ,jdbcType=VARCHAR},
+		#{roleId ,jdbcType=VARCHAR},
+		#{roleUid,jdbcType=VARCHAR},
+		#{resourceId,jdbcType=VARCHAR},
+		#{resourceUid,jdbcType=VARCHAR},
+		#{belongId,jdbcType=VARCHAR},
+		#{belongUid,jdbcType=VARCHAR},
+		#{type, jdbcType=VARCHAR},
+		#{addName, jdbcType=VARCHAR},
+		#{addNameCn, jdbcType=VARCHAR},
+		#{docCreated, jdbcType=TIMESTAMP}		
+		)
+	</insert>
+	
+	<insert useGeneratedKeys="true" keyProperty="ID_" id="saveRoleResources" parameterType="java.util.List">
+		INSERT INTO <include refid='public.model' /> ORG_ROLE_RESOURCES(
+		ROLE_UID_,
+		RESOURCE_ID_,
+		ADD_NAME_,
+		ADD_NAME_CN_
+		) VALUES
+		<foreach item="item" index="index" collection="ids">
+            (#{roleUid},#{item},#{addName},#{addNameCn})            
+        </foreach>
+		)
+	</insert>
+	
+  <delete id="delete" parameterType="OrgRoleResourcesPo">
+    delete from <include refid='public.model' /> ORG_ROLE_RESOURCES where ID_ = #{id, jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByRole" parameterType="string">
+    delete from <include refid='public.model' /> ORG_ROLE_RESOURCES where ROLE_UID_ = #{roleUid, jdbcType=VARCHAR}
+  </delete>
+  
+  <select id="selectListByRole" parameterType="string" resultMap="orgRoleResourcesMap">
+    select * from <include refid='public.model' /> ORG_ROLE_RESOURCES where ROLE_UID_ = #{roleUid, jdbcType=VARCHAR}
+  </select>
+</mapper>

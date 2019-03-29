@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.state.dao.sys.LoginCountDaoI">
+
+	<insert id="insert" parameterType="PfLoginCountPo">
+		INSERT INTO <include refid='public.model' /> PF_LOGIN_COUNT
+		(ID_
+		,DOC_CREATED_
+		,IP_
+		,COUNT_
+		,USER_ID_)
+		VALUES(
+		#{id ,jdbcType=VARCHAR},
+		#{docCreated, jdbcType=TIMESTAMP},
+		#{ip, jdbcType=VARCHAR},
+		#{count ,jdbcType=INTEGER},
+		#{userId ,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="update" parameterType="PfLoginCountPo">
+    update <include refid='public.model' /> PF_LOGIN_COUNT set
+      COUNT_ = #{count, jdbcType=INTEGER},
+      IP_ = #{ip, jdbcType=VARCHAR},
+      LAST_MODIFIED_ = #{lastModified, jdbcType=TIMESTAMP}
+    where ID_ = #{id, jdbcType=VARCHAR}
+  </update>
+	
+	<resultMap id="ResultMap" type="PfLoginCountPo">
+		<id property="id" column="ID_" jdbcType="VARCHAR" />
+		<result property="docCreated" column="DOC_CREATED_" jdbcType="TIMESTAMP" />
+		<result property="lastModified" column="LAST_MODIFIED_" jdbcType="TIMESTAMP" />
+		<result property="ip" column="IP_" jdbcType="VARCHAR" />
+		<result property="count" column="COUNT_" jdbcType="INTEGER" />
+		<result property="userId" column="USER_ID_" jdbcType="VARCHAR" />
+	</resultMap>
+
+	
+
+	<select id="selectOne" resultMap="ResultMap">
+		select * from <include refid='public.model' /> PF_LOGIN_COUNT where USER_ID_ = #{user, jdbcType=VARCHAR}
+	</select>
+
+	
+	<delete id="delete">
+		delete from <include refid='public.model' /> PF_LOGIN_COUNT where USER_ID_ = #{user, jdbcType=VARCHAR}
+		
+		
+	</delete>
+	
+	<delete id="deleteOverTime">
+		delete from <include refid='public.model' /> PF_LOGIN_COUNT 
+		<if test="loginOverTime != null">
+        	where round(to_number(sysdate-doc_created_)*24*60)>#{loginOverTime, jdbcType=INTEGER}
+    	</if>
+		</delete>
+	
+</mapper>
